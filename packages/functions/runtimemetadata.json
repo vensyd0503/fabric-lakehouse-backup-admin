@@ -1,0 +1,421 @@
+{
+  "schemaVersion": "3.0",
+  "functions": [
+    {
+      "functionName": "listWorkspaces",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Fabric"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "listLakehouses",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Fabric"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "listArchiveRoots",
+      "delegateParameters": [],
+      "contextAudiences": [],
+      "capabilities": []
+    },
+    {
+      "functionName": "listArchiveFolders",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "rootId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 2,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Storage"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "createArchiveFolder",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "rootId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 2,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Storage"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "listBackupSets",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "rootId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        },
+        {
+          "name": "backupFolder",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 2,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Storage"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "getBackupSet",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "rootId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        },
+        {
+          "name": "backupFolder",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 2,
+          "isFabricParameter": false
+        },
+        {
+          "name": "backupTimestamp",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 3,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Storage"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "startBackup",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "sourceWorkspaceId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        },
+        {
+          "name": "sourceLakehouseId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 2,
+          "isFabricParameter": false
+        },
+        {
+          "name": "rootId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 3,
+          "isFabricParameter": false
+        },
+        {
+          "name": "backupFolder",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 4,
+          "isFabricParameter": false
+        },
+        {
+          "name": "onlyTables",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 5,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Fabric"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "startRestore",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        },
+        {
+          "name": "rootId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 2,
+          "isFabricParameter": false
+        },
+        {
+          "name": "backupFolder",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 3,
+          "isFabricParameter": false
+        },
+        {
+          "name": "backupTimestamp",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 4,
+          "isFabricParameter": false
+        },
+        {
+          "name": "targetWorkspaceId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 5,
+          "isFabricParameter": false
+        },
+        {
+          "name": "targetLakehouseId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 6,
+          "isFabricParameter": false
+        },
+        {
+          "name": "restoreFiles",
+          "type": "boolean",
+          "optional": false,
+          "hasDefault": false,
+          "position": 7,
+          "isFabricParameter": false
+        },
+        {
+          "name": "onlySchemas",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 8,
+          "isFabricParameter": false
+        },
+        {
+          "name": "onlyTables",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 9,
+          "isFabricParameter": false
+        },
+        {
+          "name": "cleanTarget",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 10,
+          "isFabricParameter": false
+        },
+        {
+          "name": "confirmTargetName",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 11,
+          "isFabricParameter": false
+        },
+        {
+          "name": "dryRun",
+          "type": "boolean",
+          "optional": false,
+          "hasDefault": false,
+          "position": 12,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Fabric"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "listRuns",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Fabric"
+      ],
+      "capabilities": []
+    },
+    {
+      "functionName": "getRun",
+      "delegateParameters": [
+        {
+          "name": "ctx",
+          "type": "RayfinContext",
+          "optional": false,
+          "hasDefault": false,
+          "position": 0,
+          "isFabricParameter": false
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 1,
+          "isFabricParameter": false
+        },
+        {
+          "name": "jobInstanceId",
+          "type": "string",
+          "optional": false,
+          "hasDefault": false,
+          "position": 2,
+          "isFabricParameter": false
+        }
+      ],
+      "contextAudiences": [
+        "Fabric"
+      ],
+      "capabilities": []
+    }
+  ]
+}

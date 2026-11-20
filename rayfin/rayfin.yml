@@ -1,0 +1,52 @@
+id: backup-admin
+name: backup-admin
+version: 1.0.0
+services:
+  functions:
+    enabled: true
+    path: packages/functions
+    buildCommand: npm run build
+    auth:
+      type: application
+  auth:
+    enabled: true
+    fabric:
+      enabled: true
+      externalEntraExchange: true
+    password:
+      enabled: false
+    allowedRedirectUris:
+      - http://localhost:${DEV_PORT:-5173}
+      - http://127.0.0.1:${DEV_PORT:-5173}
+    dynamicClaims:
+      enabled: true
+  data:
+    enabled: false
+    path: packages/data
+    buildCommand: npm run build
+  staticHosting:
+    enabled: true
+    path: packages/frontend
+    folder: dist
+    buildCommand: npm run build:fabric
+    indexDocument: index.html
+    assetAccess: protected
+    embedded:
+      only: false
+  storage:
+    enabled: false
+secrets:
+  - name: NOTEBOOK_WORKSPACE_ID
+    description: Fabric workspace that holds nb_backup_run, nb_restore_run and nb_backup_restore_adls_v6
+  - name: STAGING_WORKSPACE_ID
+    description: Workspace of the staging lakehouse used for probes and run result files
+  - name: STAGING_LAKEHOUSE_ID
+    description: Staging lakehouse id. Not a backup source or a restore target
+  - name: ADLS_ACCOUNT
+    description: ADLS Gen2 storage account name
+  - name: ADLS_CONTAINER
+    description: ADLS container that holds the archive
+  - name: ADLS_ARCHIVE_FOLDER
+    description: Folder prefix inside the container. A single hyphen means the container root
+  - name: ADMIN_SUBJECTS
+    description: Comma-separated admin UPNs or Entra object ids

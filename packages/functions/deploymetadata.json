@@ -1,0 +1,599 @@
+{
+  "runtime": "TypeScript",
+  "functionsMetadata": [
+    {
+      "name": "listWorkspaces",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "listWorkspaces"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Fabric",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Fabric"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{ id: string; name: string }[]>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "FabricCtx",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'listWorkspaces',\n  async (ctx: FabricCtx): Promise<{ id: string; name: string }[]> => {\n    const items = await fabricList<{ id: string; displayName: string }>(ctx.Tokens.Fabric, '/workspaces');\n    return items.map((w) => ({ id: w.id, name: w.displayName })).sort((a, b) => a.name.localeCompare(b.name));\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "listLakehouses",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "listLakehouses"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Fabric",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Fabric"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{ id: string; name: string }[]>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "FabricCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "workspaceId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'listLakehouses',\n  async (ctx: FabricCtx, workspaceId: string): Promise<{ id: string; name: string }[]> => {\n    const items = await fabricList<{ id: string; displayName: string }>(\n      ctx.Tokens.Fabric,\n      `/workspaces/${guid(workspaceId, 'Workspace')}/lakehouses`,\n    );\n    return items.map((l) => ({ id: l.id, name: l.displayName })).sort((a, b) => a.name.localeCompare(b.name));\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "listArchiveRoots",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "listArchiveRoots"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "{ id: string; label: string; uri: string }[]",
+        "fabricFunctionParameters": []
+      },
+      "functionCode": "udf.func(\n  'listArchiveRoots',\n  (): { id: string; label: string; uri: string }[] =>\n    ARCHIVE_ROOTS.map((r) => ({ id: r.id, label: r.label, uri: rootUri(r) })),\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "listArchiveFolders",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "listArchiveFolders"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Storage",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Storage"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{ path: string; folders: string[] }>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "StorageCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "rootId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "path",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'listArchiveFolders',\n  async (ctx: StorageCtx, rootId: string, path: string): Promise<{ path: string; folders: string[] }> => {\n    const r = root(rootId);\n    const dir = folderPath(path);\n    return { path: dir, folders: await dfsListDirs(ctx.Tokens.Storage, r, dir) };\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "createArchiveFolder",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "createArchiveFolder"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Storage",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Storage"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{ path: string }>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "StorageCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "rootId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "path",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'createArchiveFolder',\n  async (ctx: StorageCtx, rootId: string, path: string): Promise<{ path: string }> => {\n    const r = root(rootId);\n    const dir = folderPath(path);\n    if (!dir) throw new Error('Enter a folder name.');\n    const res = await fetch(`${dfs(r)}/${dir}?resource=directory`, {\n      method: 'PUT',\n      headers: {\n        Authorization: bearer(ctx.Tokens.Storage),\n        'x-ms-version': DFS_VERSION,\n        'If-None-Match': '*',\n        'Content-Length': '0',\n      },\n    });\n    if (res.status === 409) throw new Error('That folder already exists.');\n    if (res.status !== 201) throw new Error(`Could not create the folder (${res.status}).`);\n    return { path: dir };\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "listBackupSets",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "listBackupSets"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Storage",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Storage"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<string[]>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "StorageCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "rootId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "backupFolder",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'listBackupSets',\n  async (ctx: StorageCtx, rootId: string, backupFolder: string): Promise<string[]> => {\n    const r = root(rootId);\n    const base = folderPath(backupFolder);\n    const dirs = await dfsListDirs(ctx.Tokens.Storage, r, base ? `${base}/backups` : 'backups');\n    return dirs.filter((d) => TIMESTAMP.test(d)).sort().reverse();\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "getBackupSet",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "getBackupSet"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Storage",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Storage"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{\n    complete: boolean;\n    completedUtc: string | null;\n    sourceWorkspaceName: string | null;\n    sourceLakehouseName: string | null;\n    tables: { schema: string; table: string; rows: number | null }[];\n    filesCopied: boolean;\n  }>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "StorageCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "rootId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "backupFolder",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "backupTimestamp",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'getBackupSet',\n  async (\n    ctx: StorageCtx,\n    rootId: string,\n    backupFolder: string,\n    backupTimestamp: string,\n  ): Promise<{\n    complete: boolean;\n    completedUtc: string | null;\n    sourceWorkspaceName: string | null;\n    sourceLakehouseName: string | null;\n    tables: { schema: string; table: string; rows: number | null }[];\n    filesCopied: boolean;\n  }> => {\n    const r = root(rootId);\n    const base = folderPath(backupFolder);\n    if (!TIMESTAMP.test(backupTimestamp)) throw new Error('Invalid backup timestamp.');\n    const file = `${base ? `${base}/` : ''}backups/${backupTimestamp}/_manifest/manifest.json`;\n    const res = await fetch(`${dfs(r)}/${file}`, {\n      headers: { Authorization: bearer(ctx.Tokens.Storage), 'x-ms-version': DFS_VERSION },\n    });\n    if (res.status === 404) {\n      return { complete: false, completedUtc: null, sourceWorkspaceName: null, sourceLakehouseName: null, tables: [], filesCopied: false };\n    }\n    if (!res.ok) throw new Error(`Could not read the backup manifest (${res.status}).`);\n    const m = (await res.json()) as {\n      status?: string;\n      completed_utc?: string;\n      source?: { workspace_name?: string; lakehouse_name?: string };\n      files_copied?: boolean;\n      tables?: { schema: string; table: string; rows?: number }[];\n    };\n    return {\n      complete: m.status === 'complete',\n      completedUtc: m.completed_utc ?? null,\n      sourceWorkspaceName: m.source?.workspace_name ?? null,\n      sourceLakehouseName: m.source?.lakehouse_name ?? null,\n      tables: (m.tables ?? []).map((t) => ({ schema: t.schema, table: t.table, rows: t.rows ?? null })),\n      filesCopied: Boolean(m.files_copied),\n    };\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "startBackup",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "startBackup"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Fabric",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Fabric"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{ jobInstanceId: string; requestKey: string }>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "FabricCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "sourceWorkspaceId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "sourceLakehouseId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "rootId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "backupFolder",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "onlyTables",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'startBackup',\n  async (\n    ctx: FabricCtx,\n    sourceWorkspaceId: string,\n    sourceLakehouseId: string,\n    rootId: string,\n    backupFolder: string,\n    onlyTables: string,\n  ): Promise<{ jobInstanceId: string; requestKey: string }> => {\n    const r = root(rootId);\n    if (!NAME_LIST.test(onlyTables) || onlyTables.length > 2000) {\n      throw new Error('Table filter may only contain names separated by commas.');\n    }\n    const key = requestKey('backup');\n    const jobInstanceId = await startJob(ctx.Tokens.Fabric, 'backup', {\n      source_workspace_id: guid(sourceWorkspaceId, 'Source workspace'),\n      source_lakehouse_id: guid(sourceLakehouseId, 'Source lakehouse'),\n      staging_workspace_id: STAGING.workspaceId,\n      staging_lakehouse_id: STAGING.lakehouseId,\n      archive_root_uri: rootUri(r),\n      backup_folder: folderPath(backupFolder),\n      only_tables: onlyTables.trim(),\n      request_key: key,\n      result_workspace_id: STAGING.workspaceId,\n      result_lakehouse_id: STAGING.lakehouseId,\n    });\n    return { jobInstanceId, requestKey: key };\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "startRestore",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "startRestore"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Fabric",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Fabric"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{ jobInstanceId: string; requestKey: string }>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "FabricCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "mode",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "rootId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "backupFolder",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "backupTimestamp",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "targetWorkspaceId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "targetLakehouseId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "restoreFiles",
+            "dataType": "boolean",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "onlySchemas",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "onlyTables",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "cleanTarget",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "confirmTargetName",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "dryRun",
+            "dataType": "boolean",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'startRestore',\n  async (\n    ctx: FabricCtx,\n    mode: string,\n    rootId: string,\n    backupFolder: string,\n    backupTimestamp: string,\n    targetWorkspaceId: string,\n    targetLakehouseId: string,\n    restoreFiles: boolean,\n    onlySchemas: string,\n    onlyTables: string,\n    cleanTarget: string,\n    confirmTargetName: string,\n    dryRun: boolean,\n  ): Promise<{ jobInstanceId: string; requestKey: string }> => {\n    const r = root(rootId);\n    if (mode !== 'preview' && mode !== 'restore') throw new Error('Mode must be preview or restore.');\n    if (!TIMESTAMP.test(backupTimestamp)) throw new Error('Pick a backup set.');\n    if (!['', 'replace', 'all'].includes(cleanTarget)) throw new Error('Invalid cleanup option.');\n    if (!NAME_LIST.test(onlyTables) || onlyTables.length > 2000) {\n      throw new Error('Table filter may only contain names separated by commas.');\n    }\n    if (!NAME_LIST.test(onlySchemas) || onlySchemas.length > 2000) {\n      throw new Error('Schema filter may only contain names separated by commas.');\n    }\n    if (targetLakehouseId === STAGING.lakehouseId) throw new Error('The staging lakehouse cannot be a restore target.');\n    const key = requestKey('restore');\n    const jobInstanceId = await startJob(ctx.Tokens.Fabric, 'restore', {\n      mode,\n      archive_root_uri: rootUri(r),\n      backup_folder: folderPath(backupFolder),\n      backup_timestamp: backupTimestamp,\n      target_workspace_id: guid(targetWorkspaceId, 'Target workspace'),\n      target_lakehouse_id: guid(targetLakehouseId, 'Target lakehouse'),\n      restore_files: restoreFiles,\n      only_schemas: onlySchemas.trim(),\n      only_tables: onlyTables.trim(),\n      clean_target: cleanTarget,\n      confirm_target_name: confirmTargetName.slice(0, 256),\n      dry_run: dryRun,\n      request_key: key,\n      result_workspace_id: STAGING.workspaceId,\n      result_lakehouse_id: STAGING.lakehouseId,\n    });\n    return { jobInstanceId, requestKey: key };\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "listRuns",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "listRuns"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Fabric",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Fabric"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{ id: string; status: string; startTimeUtc: string | null; endTimeUtc: string | null; failureMessage: string | null }[]>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "FabricCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "kind",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'listRuns',\n  async (\n    ctx: FabricCtx,\n    kind: string,\n  ): Promise<{ id: string; status: string; startTimeUtc: string | null; endTimeUtc: string | null; failureMessage: string | null }[]> => {\n    const items = await fabricList<{\n      id: string;\n      status: string;\n      startTimeUtc?: string | null;\n      endTimeUtc?: string | null;\n      failureReason?: { message?: string } | null;\n    }>(ctx.Tokens.Fabric, `/workspaces/${RUNNER.workspaceId}/items/${RUNNER.notebooks[jobKind(kind)]}/jobs/instances`);\n    return items\n      .map((j) => ({\n        id: j.id,\n        status: j.status,\n        startTimeUtc: j.startTimeUtc ?? null,\n        endTimeUtc: j.endTimeUtc ?? null,\n        failureMessage: j.failureReason?.message ?? null,\n      }))\n      .sort((a, b) => (b.startTimeUtc ?? '').localeCompare(a.startTimeUtc ?? ''))\n      .slice(0, 20);\n  },\n  [],\n)",
+      "capabilities": []
+    },
+    {
+      "name": "getRun",
+      "scriptFile": "src/function_app.ts",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "httpTrigger",
+          "direction": "in",
+          "authLevel": "anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "getRun"
+        },
+        {
+          "name": "$return",
+          "type": "http",
+          "direction": "out"
+        },
+        {
+          "name": "__generic_Fabric",
+          "direction": "in",
+          "type": "FabricItem",
+          "alias": "",
+          "audienceType": "Fabric"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.0",
+        "fabricFunctionReturnType": "Promise<{\n    id: string;\n    status: string;\n    startTimeUtc: string | null;\n    endTimeUtc: string | null;\n    failureMessage: string | null;\n    snapshotUrl: string | null;\n    exitJson: string | null;\n  }>",
+        "fabricFunctionParameters": [
+          {
+            "name": "ctx",
+            "dataType": "FabricCtx",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "kind",
+            "dataType": "string",
+            "hasDefaultValue": false
+          },
+          {
+            "name": "jobInstanceId",
+            "dataType": "string",
+            "hasDefaultValue": false
+          }
+        ]
+      },
+      "functionCode": "udf.func(\n  'getRun',\n  async (\n    ctx: FabricCtx,\n    kind: string,\n    jobInstanceId: string,\n  ): Promise<{\n    id: string;\n    status: string;\n    startTimeUtc: string | null;\n    endTimeUtc: string | null;\n    failureMessage: string | null;\n    snapshotUrl: string | null;\n    exitJson: string | null;\n  }> => {\n    // beta=true is the documented way to read exitValue today (notebook-public-api).\n    const res = await fabric(\n      ctx.Tokens.Fabric,\n      `/workspaces/${RUNNER.workspaceId}/notebooks/${RUNNER.notebooks[jobKind(kind)]}/jobs/execute/instances/${guid(jobInstanceId, 'Run')}?beta=true`,\n    );\n    if (!res.ok) throw new Error(`Could not read run (${res.status}).`);\n    const j = (await res.json()) as {\n      id: string;\n      status: string;\n      startTimeUtc?: string | null;\n      endTimeUtc?: string | null;\n      failureReason?: { message?: string } | null;\n      properties?: { exitValue?: string; computeDetails?: { monitoringInfo?: { executionSnapshotUrl?: string } } };\n    };\n    return {\n      id: j.id,\n      status: j.status,\n      startTimeUtc: j.startTimeUtc ?? null,\n      endTimeUtc: j.endTimeUtc ?? null,\n      failureMessage: j.failureReason?.message ?? null,\n      snapshotUrl: j.properties?.computeDetails?.monitoringInfo?.executionSnapshotUrl ?? null,\n      exitJson: j.properties?.exitValue ?? null,\n    };\n  },\n  [],\n)",
+      "capabilities": []
+    }
+  ],
+  "packageVersions": {
+    "@microsoft/fabric-user-data-functions": "2.0.1"
+  },
+  "workerCapabilities": [
+    "secrets-endpoint"
+  ]
+}
